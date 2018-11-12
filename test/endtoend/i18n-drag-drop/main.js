@@ -21,5 +21,8 @@ uppyi18n
       }
     }
   })
-  .use(ProgressBar, { target: '#uppyi18n-progress' })
+  .use(ProgressBar, {
+    target: '#uppyi18n-progress',
+    hideAfterFinish: false
+  })
   .use(XHRUpload, { endpoint: 'https://api2.transloadit.com' })
