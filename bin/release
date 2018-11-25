@@ -10,27 +10,27 @@ __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 __base="$(basename ${__file} .sh)"
 __root="$(cd "$(dirname "${__dir}")" && pwd)"
 
-if [[ ! "$@" =~ -y ]]; then
-  echo "Make sure to read https://uppy.io/docs/contributing#Releases!"
-  echo "Press Enter when ready, or Ctrl+C if you still need to do something."
-  echo "Use 'npm run release -- -y' to bypass this message."
-  read
-fi
+# if [[ ! "$@" =~ -y ]]; then
+#   echo "Make sure to read https://uppy.io/docs/contributing#Releases!"
+#   echo "Press Enter when ready, or Ctrl+C if you still need to do something."
+#   echo "Use 'npm run release -- -y' to bypass this message."
+#   read
+# fi
 
-if [[ ! "$(npm get registry)" =~ https://registry\.npmjs\.(com|org)/? ]]; then
-  echo "Found unexpected npm registry: $(npm get registry)"
-  echo "Run this to fix:"
-  echo ""
-  echo "npm set registry https://registry.npmjs.org"
-  exit 1
-fi
-
-# if ! npm whoami > /dev/null; then
-#   echo "Not authenticated with npm. First do:"
+# if [[ ! "$(npm get registry)" =~ https://registry\.npmjs\.(com|org)/? ]]; then
+#   echo "Found unexpected npm registry: $(npm get registry)"
+#   echo "Run this to fix:"
 #   echo ""
-#   echo "npm login"
+#   echo "npm set registry https://registry.npmjs.org"
 #   exit 1
 # fi
+
+if ! npm whoami > /dev/null; then
+  echo "Not authenticated with npm. First do:"
+  echo ""
+  echo "npm login"
+  exit 1
+fi
 
 # if ! which jq; then
 #   echo "https://stedolan.github.io/jq/ needs to be installed and available in PATH to do a release."
