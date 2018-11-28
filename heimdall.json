@@ -1,0 +1,6 @@
+{
+  "uppy-server": {
+    "build_cmd": "echo 'nothing to build.'",
+    "dockerfile" : "packages/@uppy/companion/Dockerfile"
+  }
+}

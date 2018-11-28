@@ -43,11 +43,11 @@ const getConfigFromEnv = () => {
         secret: process.env.COMPANION_INSTAGRAM_SECRET || process.env.UPPYSERVER_INSTAGRAM_SECRET
       },
       s3: {
-        key: process.env.COMPANION_AWS_KEY || process.env.UPPYSERVER_AWS_KEY,
-        secret: process.env.COMPANION_AWS_SECRET || process.env.UPPYSERVER_AWS_SECRET,
-        bucket: process.env.COMPANION_AWS_BUCKET || process.env.UPPYSERVER_AWS_BUCKET,
-        endpoint: process.env.COMPANION_AWS_ENDPOINT || process.env.UPPYSERVER_AWS_ENDPOINT,
-        region: process.env.COMPANION_AWS_REGION || process.env.UPPYSERVER_AWS_REGION
+        //key: process.env.COMPANION_AWS_KEY || process.env.UPPYSERVER_AWS_KEY,
+        //secret: process.env.COMPANION_AWS_SECRET || process.env.UPPYSERVER_AWS_SECRET,
+        //bucket: process.env.COMPANION_AWS_BUCKET || process.env.UPPYSERVER_AWS_BUCKET,
+        //endpoint: process.env.COMPANION_AWS_ENDPOINT || process.env.UPPYSERVER_AWS_ENDPOINT,
+        //region: process.env.COMPANION_AWS_REGION || process.env.UPPYSERVER_AWS_REGION
       }
     },
     server: {
