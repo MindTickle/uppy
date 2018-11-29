@@ -3,6 +3,7 @@ var mimeTypes = require('./mimeTypes');
 
 module.exports = function getFileType(file) {
   var fileExtension = file.name ? getFileNameAndExtension(file.name).extension : null;
+  fileExtension = fileExtension ? fileExtension.toLowerCase() : null;
 
   if (file.isRemote) {
     // some remote providers do not support file types

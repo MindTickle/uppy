@@ -4,8 +4,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var preact = require('preact');
-var findDOMElement = require('@uppy/utils/lib/findDOMElement');
+var preact = require("preact");
+var findDOMElement = require("@uppy/utils/lib/findDOMElement");
 
 /**
  * Defer a frequent call to the microtask queue.
@@ -74,7 +74,7 @@ module.exports = function () {
   };
 
   Plugin.prototype.update = function update(state) {
-    if (typeof this.el === 'undefined') {
+    if (typeof this.el === "undefined") {
       return;
     }
 
@@ -84,11 +84,11 @@ module.exports = function () {
   };
 
   /**
-  * Called when plugin is mounted, whether in DOM or into another plugin.
-  * Needed because sometimes plugins are mounted separately/after `install`,
-  * so this.el and this.parent might not be available in `install`.
-  * This is the case with @uppy/react plugins, for example.
-  */
+   * Called when plugin is mounted, whether in DOM or into another plugin.
+   * Needed because sometimes plugins are mounted separately/after `install`,
+   * so this.el and this.parent might not be available in `install`.
+   * This is the case with @uppy/react plugins, for example.
+   */
 
 
   Plugin.prototype.onMount = function onMount() {};
@@ -123,11 +123,11 @@ module.exports = function () {
       };
       this._updateUI = debounce(this.rerender);
 
-      this.uppy.log('Installing ' + callerPluginName + ' to a DOM element');
+      this.uppy.log("Installing " + callerPluginName + " to a DOM element");
 
       // clear everything inside the target container
       if (this.opts.replaceTargetContent) {
-        targetElement.innerHTML = '';
+        targetElement.innerHTML = "";
       }
 
       this.el = preact.render(this.render(this.uppy.getState()), targetElement);
@@ -137,10 +137,10 @@ module.exports = function () {
     }
 
     var targetPlugin = void 0;
-    if ((typeof target === 'undefined' ? 'undefined' : _typeof(target)) === 'object' && target instanceof Plugin) {
-      // Targeting a plugin *instance*
-      targetPlugin = target;
-    } else if (typeof target === 'function') {
+    if ((typeof target === "undefined" ? "undefined" : _typeof(target)) === "object" /*&& target instanceof Plugin*/) {
+        // Targeting a plugin *instance*
+        targetPlugin = target;
+      } else if (typeof target === "function") {
       // Targeting a plugin type
       var Target = target;
       // Find the target plugin instance.
@@ -153,7 +153,7 @@ module.exports = function () {
     }
 
     if (targetPlugin) {
-      this.uppy.log('Installing ' + callerPluginName + ' to ' + targetPlugin.id);
+      this.uppy.log("Installing " + callerPluginName + " to " + targetPlugin.id);
       this.parent = targetPlugin;
       this.el = targetPlugin.addTarget(plugin);
 
@@ -161,16 +161,16 @@ module.exports = function () {
       return this.el;
     }
 
-    this.uppy.log('Not installing ' + callerPluginName);
-    throw new Error('Invalid target option given to ' + callerPluginName + '. Please make sure that the element \n      exists on the page, or that the plugin you are targeting has been installed. Check that the <script> tag initializing Uppy \n      comes at the bottom of the page, before the closing </body> tag (see https://github.com/transloadit/uppy/issues/1042).');
+    this.uppy.log("Not installing " + callerPluginName);
+    throw new Error("Invalid target option given to " + callerPluginName + ". Please make sure that the element\n      exists on the page, or that the plugin you are targeting has been installed. Check that the <script> tag initializing Uppy\n      comes at the bottom of the page, before the closing </body> tag (see https://github.com/transloadit/uppy/issues/1042).");
   };
 
   Plugin.prototype.render = function render(state) {
-    throw new Error('Extend the render method to add your plugin to a DOM element');
+    throw new Error("Extend the render method to add your plugin to a DOM element");
   };
 
   Plugin.prototype.addTarget = function addTarget(plugin) {
-    throw new Error('Extend the addTarget method to add your plugin to another plugin\'s target');
+    throw new Error("Extend the addTarget method to add your plugin to another plugin's target");
   };
 
   Plugin.prototype.unmount = function unmount() {

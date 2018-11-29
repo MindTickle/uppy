@@ -6,16 +6,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _require = require('preact'),
+var _require = require("preact"),
     h = _require.h,
     Component = _require.Component;
 
-var AuthView = require('./AuthView');
-var Browser = require('./Browser');
-var LoaderView = require('./Loader');
-var generateFileID = require('@uppy/utils/lib/generateFileID');
-var getFileType = require('@uppy/utils/lib/getFileType');
-var isPreviewSupported = require('@uppy/utils/lib/isPreviewSupported');
+var AuthView = require("./AuthView");
+var Browser = require("./Browser");
+var LoaderView = require("./Loader");
+var generateFileID = require("@uppy/utils/lib/generateFileID");
+var getFileType = require("@uppy/utils/lib/getFileType");
+var isPreviewSupported = require("@uppy/utils/lib/isPreviewSupported");
 
 /**
  * Array.prototype.findIndex ponyfill for old browsers.
@@ -64,13 +64,14 @@ module.exports = function () {
 
     // set default options
     var defaultOptions = {
-      viewType: 'list',
+      viewType: "list",
       showTitles: true,
       showFilter: true,
       showBreadcrumbs: true
+    };
 
-      // merge default options with the ones set by user
-    };this.opts = _extends({}, defaultOptions, opts);
+    // merge default options with the ones set by user
+    this.opts = _extends({}, defaultOptions, opts);
 
     // Logic
     this.addFile = this.addFile.bind(this);
@@ -187,7 +188,7 @@ module.exports = function () {
       },
       remote: {
         serverUrl: this.plugin.opts.serverUrl,
-        url: '' + this.Provider.fileUrl(file.requestPath),
+        url: "" + this.Provider.fileUrl(file.requestPath),
         body: {
           fileId: file.id
         },
@@ -200,7 +201,7 @@ module.exports = function () {
     if (fileType && isPreviewSupported(fileType)) {
       tagFile.preview = file.thumbnail;
     }
-    this.plugin.uppy.log('Adding remote file');
+    this.plugin.uppy.log("Adding remote file");
     try {
       this.plugin.uppy.addFile(tagFile);
     } catch (err) {
@@ -243,7 +244,7 @@ module.exports = function () {
   ProviderView.prototype.filterQuery = function filterQuery(e) {
     var state = this.plugin.getPluginState();
     this.plugin.setPluginState(_extends({}, state, {
-      filterInput: e ? e.target.value : ''
+      filterInput: e ? e.target.value : ""
     }));
   };
 
@@ -252,13 +253,13 @@ module.exports = function () {
 
     this.plugin.setPluginState({
       isSearchVisible: !state.isSearchVisible,
-      filterInput: ''
+      filterInput: ""
     });
   };
 
   ProviderView.prototype.filterItems = function filterItems(items) {
     var state = this.plugin.getPluginState();
-    if (state.filterInput === '') {
+    if (state.filterInput === "") {
       return items;
     }
     return items.filter(function (folder) {
@@ -274,14 +275,14 @@ module.exports = function () {
 
 
     var sortedFiles = files.sort(function (fileA, fileB) {
-      if (sorting === 'titleDescending') {
+      if (sorting === "titleDescending") {
         return fileB.name.localeCompare(fileA.name);
       }
       return fileA.name.localeCompare(fileB.name);
     });
 
     var sortedFolders = folders.sort(function (folderA, folderB) {
-      if (sorting === 'titleDescending') {
+      if (sorting === "titleDescending") {
         return folderB.name.localeCompare(folderA.name);
       }
       return folderA.name.localeCompare(folderB.name);
@@ -290,7 +291,7 @@ module.exports = function () {
     this.plugin.setPluginState(_extends({}, state, {
       files: sortedFiles,
       folders: sortedFolders,
-      sorting: sorting === 'titleDescending' ? 'titleAscending' : 'titleDescending'
+      sorting: sorting === "titleDescending" ? "titleAscending" : "titleDescending"
     }));
   };
 
@@ -305,7 +306,7 @@ module.exports = function () {
       var a = new Date(fileA.modifiedDate);
       var b = new Date(fileB.modifiedDate);
 
-      if (sorting === 'dateDescending') {
+      if (sorting === "dateDescending") {
         return a > b ? -1 : a < b ? 1 : 0;
       }
       return a > b ? 1 : a < b ? -1 : 0;
@@ -315,7 +316,7 @@ module.exports = function () {
       var a = new Date(folderA.modifiedDate);
       var b = new Date(folderB.modifiedDate);
 
-      if (sorting === 'dateDescending') {
+      if (sorting === "dateDescending") {
         return a > b ? -1 : a < b ? 1 : 0;
       }
 
@@ -325,7 +326,7 @@ module.exports = function () {
     this.plugin.setPluginState(_extends({}, state, {
       files: sortedFiles,
       folders: sortedFolders,
-      sorting: sorting === 'dateDescending' ? 'dateAscending' : 'dateDescending'
+      sorting: sorting === "dateDescending" ? "dateAscending" : "dateDescending"
     }));
   };
 
@@ -344,7 +345,7 @@ module.exports = function () {
       var a = fileA.size;
       var b = fileB.size;
 
-      if (sorting === 'sizeDescending') {
+      if (sorting === "sizeDescending") {
         return a > b ? -1 : a < b ? 1 : 0;
       }
       return a > b ? 1 : a < b ? -1 : 0;
@@ -352,7 +353,7 @@ module.exports = function () {
 
     this.plugin.setPluginState(_extends({}, state, {
       files: sortedFiles,
-      sorting: sorting === 'sizeDescending' ? 'sizeAscending' : 'sizeDescending'
+      sorting: sorting === "sizeDescending" ? "sizeAscending" : "sizeDescending"
     }));
   };
 
@@ -399,14 +400,15 @@ module.exports = function () {
       state = _this5.plugin.getPluginState();
       state.selectedFolders[folderId] = { loading: false, files: files };
       _this5.plugin.setPluginState({ selectedFolders: folders });
-      var dashboard = _this5.plugin.uppy.getPlugin('Dashboard');
+      var dashboard = _this5.plugin.uppy.getPlugin("Dashboard");
       var message = void 0;
       if (files.length) {
-        message = dashboard.i18n('folderAdded', {
-          smart_count: files.length, folder: folder.name
+        message = dashboard.i18n("folderAdded", {
+          smart_count: files.length,
+          folder: folder.name
         });
       } else {
-        message = dashboard.i18n('emptyFolderAdded');
+        message = dashboard.i18n("emptyFolderAdded");
       }
       _this5.plugin.uppy.info(message);
     }).catch(function (e) {
@@ -488,26 +490,28 @@ module.exports = function () {
     var _this6 = this;
 
     var authState = btoa(JSON.stringify({ origin: location.origin }));
-    var link = this.Provider.authUrl() + '?state=' + authState;
+    var link = this.Provider.authUrl() + "?state=" + authState;
 
-    var authWindow = window.open(link, '_blank');
+    var authWindow = window.open(link, "_blank");
     var handleToken = function handleToken(e) {
-      if (!_this6._isOriginAllowed(e.origin, _this6.plugin.opts.serverPattern) || e.source !== authWindow) {
-        _this6.plugin.uppy.log('rejecting event from ' + e.origin + ' vs allowed pattern ' + _this6.plugin.opts.serverPattern);
-        return;
-      }
+      if (!_this6._isOriginAllowed(e.origin, _this6.plugin.opts.serverPattern) /*||
+                                                                               e.source !== authWindow*/
+      ) {
+          _this6.plugin.uppy.log("rejecting event from " + e.origin + " vs allowed pattern " + _this6.plugin.opts.serverPattern);
+          return;
+        }
       authWindow.close();
-      window.removeEventListener('message', handleToken);
+      window.removeEventListener("message", handleToken);
       _this6.Provider.setAuthToken(e.data.token);
       _this6._loaderWrapper(_this6.Provider.checkAuth(), _this6.plugin.onAuth, _this6.handleError);
     };
-    window.addEventListener('message', handleToken);
+    window.addEventListener("message", handleToken);
   };
 
   ProviderView.prototype._isOriginAllowed = function _isOriginAllowed(origin, allowedOrigin) {
     var getRegex = function getRegex(value) {
-      if (typeof value === 'string') {
-        return new RegExp('^' + value + '$');
+      if (typeof value === "string") {
+        return new RegExp("^" + value + "$");
       } else if (value instanceof RegExp) {
         return value;
       }
@@ -523,9 +527,9 @@ module.exports = function () {
 
   ProviderView.prototype.handleError = function handleError(error) {
     var uppy = this.plugin.uppy;
-    var message = uppy.i18n('companionError');
+    var message = uppy.i18n("companionError");
     uppy.log(error.toString());
-    uppy.info({ message: message, details: error.toString() }, 'error', 5000);
+    uppy.info({ message: message, details: error.toString() }, "error", 5000);
   };
 
   ProviderView.prototype.handleScroll = function handleScroll(e) {
@@ -571,7 +575,7 @@ module.exports = function () {
   ProviderView.prototype.cancelPicking = function cancelPicking() {
     this.clearSelection();
 
-    var dashboard = this.plugin.uppy.getPlugin('Dashboard');
+    var dashboard = this.plugin.uppy.getPlugin("Dashboard");
     if (dashboard) dashboard.hideAllPanels();
   };
 
@@ -620,7 +624,8 @@ module.exports = function () {
           checkAuth: this.checkAuth,
           handleAuth: this.handleAuth,
           handleDemoAuth: this.handleDemoAuth,
-          checkAuthInProgress: checkAuthInProgress })
+          checkAuthInProgress: checkAuthInProgress
+        })
       );
     }
 

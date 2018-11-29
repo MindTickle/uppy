@@ -119,13 +119,12 @@ module.exports = function (_Plugin) {
     }
   };
 
-  AwsS3Multipart.prototype.createMultipartUpload = function createMultipartUpload(file, numParts) {
+  AwsS3Multipart.prototype.createMultipartUpload = function createMultipartUpload(file) {
     this.assertHost();
 
-    return this.client.post("getSignedMultipart", {
-      fileName: file.name,
-      cType: file.type,
-      numParts: numParts
+    return this.client.post("s3/multipart", {
+      filename: file.name,
+      type: file.type
     }).then(assertServerError);
   };
 
@@ -140,64 +139,55 @@ module.exports = function (_Plugin) {
   };
 
   AwsS3Multipart.prototype.prepareUploadPart = function prepareUploadPart(file, _ref3) {
-    var _this2 = this;
-
     var key = _ref3.key,
         uploadId = _ref3.uploadId,
         number = _ref3.number;
 
     this.assertHost();
 
-    return new Promise(function (resolve, reject) {
-      if (!_this2.part || !_this2.parts.length || !_this2.parts[number - 1]) {
-        reject(new Error("No part at " + index + " found for upload..."));
-      } else {
-        resolve(!_this2.parts[number - 1]);
-      }
-    });
-
-    // const filename = encodeURIComponent(key)
-    // return this.client.get(`s3/multipart/${uploadId}/${number}?key=${filename}`)
-    //   .then(assertServerError)
+    var filename = encodeURIComponent(key);
+    return this.client.get("s3/multipart/" + uploadId + "/" + number + "?key=" + filename).then(assertServerError);
   };
 
   AwsS3Multipart.prototype.completeMultipartUpload = function completeMultipartUpload(file, _ref4) {
-    var url = _ref4.url,
+    var key = _ref4.key,
+        uploadId = _ref4.uploadId,
         parts = _ref4.parts;
 
     this.assertHost();
-    //const filename = encodeURIComponent(key)
-    //const uploadIdEnc = encodeURIComponent(uploadId)
-    return this.client.post(url, { parts: parts }).then(assertServerError);
+
+    var filename = encodeURIComponent(key);
+    var uploadIdEnc = encodeURIComponent(uploadId);
+    return this.client.post("s3/multipart/" + uploadIdEnc + "/complete?key=" + filename, { parts: parts }).then(assertServerError);
   };
 
   AwsS3Multipart.prototype.abortMultipartUpload = function abortMultipartUpload(file, _ref5) {
-    var url = _ref5.url;
+    var key = _ref5.key,
+        uploadId = _ref5.uploadId;
 
     this.assertHost();
 
-    //const filename = encodeURIComponent(key)
-    //const uploadIdEnc = encodeURIComponent(uploadId)
-    return this.client.delete(url).then(assertServerError);
+    var filename = encodeURIComponent(key);
+    var uploadIdEnc = encodeURIComponent(uploadId);
+    return this.client.delete("s3/multipart/" + uploadIdEnc + "?key=" + filename).then(assertServerError);
   };
 
   AwsS3Multipart.prototype.uploadFile = function uploadFile(file) {
-    var _this3 = this;
+    var _this2 = this;
 
     return new Promise(function (resolve, reject) {
       var upload = new Uploader(file.data, _extends({
         // .bind to pass the file object to each handler.
-        createMultipartUpload: _this3.limitRequests(_this3.opts.createMultipartUpload.bind(_this3, file)),
-        listParts: _this3.limitRequests(_this3.opts.listParts.bind(_this3, file)),
-        prepareUploadPart: _this3.opts.prepareUploadPart.bind(_this3, file),
-        completeMultipartUpload: _this3.limitRequests(_this3.opts.completeMultipartUpload.bind(_this3, file)),
-        abortMultipartUpload: _this3.limitRequests(_this3.opts.abortMultipartUpload.bind(_this3, file)),
+        createMultipartUpload: _this2.limitRequests(_this2.opts.createMultipartUpload.bind(_this2, file)),
+        listParts: _this2.limitRequests(_this2.opts.listParts.bind(_this2, file)),
+        prepareUploadPart: _this2.opts.prepareUploadPart.bind(_this2, file),
+        completeMultipartUpload: _this2.limitRequests(_this2.opts.completeMultipartUpload.bind(_this2, file)),
+        abortMultipartUpload: _this2.limitRequests(_this2.opts.abortMultipartUpload.bind(_this2, file)),
 
-        limit: _this3.opts.limit || 5,
-        chunkSize: _this3.opts.chunkSize,
+        limit: _this2.opts.limit || 5,
         onStart: function onStart(data) {
-          var cFile = _this3.uppy.getFile(file.id);
-          _this3.uppy.setFileState(file.id, {
+          var cFile = _this2.uppy.getFile(file.id);
+          _this2.uppy.setFileState(file.id, {
             s3Multipart: _extends({}, cFile.s3Multipart, {
               key: data.key,
               uploadId: data.uploadId,
@@ -206,55 +196,55 @@ module.exports = function (_Plugin) {
           });
         },
         onProgress: function onProgress(bytesUploaded, bytesTotal) {
-          _this3.uppy.emit("upload-progress", file, {
-            uploader: _this3,
+          _this2.uppy.emit("upload-progress", file, {
+            uploader: _this2,
             bytesUploaded: bytesUploaded,
             bytesTotal: bytesTotal
           });
         },
         onError: function onError(err) {
-          _this3.uppy.log(err);
-          _this3.uppy.emit("upload-error", file, err);
+          _this2.uppy.log(err);
+          _this2.uppy.emit("upload-error", file, err);
           err.message = "Failed because: " + err.message;
 
-          _this3.resetUploaderReferences(file.id);
+          _this2.resetUploaderReferences(file.id);
           reject(err);
         },
         onSuccess: function onSuccess(result) {
-          _this3.uppy.emit("upload-success", file, upload, result.location);
+          _this2.uppy.emit("upload-success", file, upload, result.location);
 
           if (result.location) {
-            _this3.uppy.log("Download " + upload.file.name + " from " + result.location);
+            _this2.uppy.log("Download " + upload.file.name + " from " + result.location);
           }
 
-          _this3.resetUploaderReferences(file.id);
+          _this2.resetUploaderReferences(file.id);
           resolve(upload);
         },
         onPartComplete: function onPartComplete(part) {
           // Store completed parts in state.
-          var cFile = _this3.uppy.getFile(file.id);
+          var cFile = _this2.uppy.getFile(file.id);
           if (!cFile) {
             return;
           }
-          _this3.uppy.setFileState(file.id, {
+          _this2.uppy.setFileState(file.id, {
             s3Multipart: _extends({}, cFile.s3Multipart, {
               parts: [].concat(cFile.s3Multipart.parts, [part])
             })
           });
 
-          _this3.uppy.emit("s3-multipart:part-uploaded", cFile, part);
+          _this2.uppy.emit("s3-multipart:part-uploaded", cFile, part);
         }
       }, file.s3Multipart));
 
-      _this3.uploaders[file.id] = upload;
-      _this3.uploaderEvents[file.id] = createEventTracker(_this3.uppy);
+      _this2.uploaders[file.id] = upload;
+      _this2.uploaderEvents[file.id] = createEventTracker(_this2.uppy);
 
-      _this3.onFileRemove(file.id, function (removed) {
-        _this3.resetUploaderReferences(file.id, { abort: true });
+      _this2.onFileRemove(file.id, function (removed) {
+        _this2.resetUploaderReferences(file.id, { abort: true });
         resolve("upload " + removed.id + " was removed");
       });
 
-      _this3.onFilePause(file.id, function (isPaused) {
+      _this2.onFilePause(file.id, function (isPaused) {
         if (isPaused) {
           upload.pause();
         } else {
@@ -262,11 +252,11 @@ module.exports = function (_Plugin) {
         }
       });
 
-      _this3.onPauseAll(file.id, function () {
+      _this2.onPauseAll(file.id, function () {
         upload.pause();
       });
 
-      _this3.onResumeAll(file.id, function () {
+      _this2.onResumeAll(file.id, function () {
         upload.start();
       });
 
@@ -275,24 +265,24 @@ module.exports = function (_Plugin) {
       }
 
       if (!file.isRestored) {
-        _this3.uppy.emit("upload-started", file, upload);
+        _this2.uppy.emit("upload-started", file, upload);
       }
     });
   };
 
   AwsS3Multipart.prototype.uploadRemote = function uploadRemote(file) {
-    var _this4 = this;
+    var _this3 = this;
 
     this.resetUploaderReferences(file.id);
 
     return new Promise(function (resolve, reject) {
       if (file.serverToken) {
-        return _this4.connectToServerSocket(file).then(function () {
+        return _this3.connectToServerSocket(file).then(function () {
           return resolve();
         }).catch(reject);
       }
 
-      _this4.uppy.emit("upload-started", file);
+      _this3.uppy.emit("upload-started", file);
 
       fetch(file.remote.url, {
         method: "post",
@@ -312,11 +302,11 @@ module.exports = function (_Plugin) {
         }
 
         return res.json().then(function (data) {
-          _this4.uppy.setFileState(file.id, { serverToken: data.token });
-          return _this4.uppy.getFile(file.id);
+          _this3.uppy.setFileState(file.id, { serverToken: data.token });
+          return _this3.uppy.getFile(file.id);
         });
       }).then(function (file) {
-        return _this4.connectToServerSocket(file);
+        return _this3.connectToServerSocket(file);
       }).then(function () {
         resolve();
       }).catch(function (err) {
@@ -326,41 +316,41 @@ module.exports = function (_Plugin) {
   };
 
   AwsS3Multipart.prototype.connectToServerSocket = function connectToServerSocket(file) {
-    var _this5 = this;
+    var _this4 = this;
 
     return new Promise(function (resolve, reject) {
       var token = file.serverToken;
       var host = getSocketHost(file.remote.serverUrl);
       var socket = new Socket({ target: host + "/api/" + token });
-      _this5.uploaderSockets[socket] = socket;
-      _this5.uploaderEvents[file.id] = createEventTracker(_this5.uppy);
+      _this4.uploaderSockets[socket] = socket;
+      _this4.uploaderEvents[file.id] = createEventTracker(_this4.uppy);
 
-      _this5.onFileRemove(file.id, function (removed) {
-        _this5.resetUploaderReferences(file.id, { abort: true });
+      _this4.onFileRemove(file.id, function (removed) {
+        _this4.resetUploaderReferences(file.id, { abort: true });
         resolve("upload " + file.id + " was removed");
       });
 
-      _this5.onFilePause(file.id, function (isPaused) {
+      _this4.onFilePause(file.id, function (isPaused) {
         socket.send(isPaused ? "pause" : "resume", {});
       });
 
-      _this5.onPauseAll(file.id, function () {
+      _this4.onPauseAll(file.id, function () {
         return socket.send("pause", {});
       });
 
-      _this5.onResumeAll(file.id, function () {
+      _this4.onResumeAll(file.id, function () {
         if (file.error) {
           socket.send("pause", {});
         }
         socket.send("resume", {});
       });
 
-      _this5.onRetry(file.id, function () {
+      _this4.onRetry(file.id, function () {
         socket.send("pause", {});
         socket.send("resume", {});
       });
 
-      _this5.onRetryAll(file.id, function () {
+      _this4.onRetryAll(file.id, function () {
         socket.send("pause", {});
         socket.send("resume", {});
       });
@@ -370,32 +360,32 @@ module.exports = function (_Plugin) {
       }
 
       socket.on("progress", function (progressData) {
-        return emitSocketProgress(_this5, progressData, file);
+        return emitSocketProgress(_this4, progressData, file);
       });
 
       socket.on("error", function (errData) {
-        _this5.uppy.emit("upload-error", file, new Error(errData.error));
+        _this4.uppy.emit("upload-error", file, new Error(errData.error));
         reject(new Error(errData.error));
       });
 
       socket.on("success", function (data) {
-        _this5.uppy.emit("upload-success", file, data, data.url);
+        _this4.uppy.emit("upload-success", file, data, data.url);
         resolve();
       });
     });
   };
 
   AwsS3Multipart.prototype.upload = function upload(fileIDs) {
-    var _this6 = this;
+    var _this5 = this;
 
     if (fileIDs.length === 0) return Promise.resolve();
 
     var promises = fileIDs.map(function (id) {
-      var file = _this6.uppy.getFile(id);
+      var file = _this5.uppy.getFile(id);
       if (file.isRemote) {
-        return _this6.uploadRemote(file);
+        return _this5.uploadRemote(file);
       }
-      return _this6.uploadFile(file);
+      return _this5.uploadFile(file);
     });
 
     return Promise.all(promises);
@@ -425,34 +415,34 @@ module.exports = function (_Plugin) {
   };
 
   AwsS3Multipart.prototype.onRetryAll = function onRetryAll(fileID, cb) {
-    var _this7 = this;
+    var _this6 = this;
 
     this.uploaderEvents[fileID].on("retry-all", function (filesToRetry) {
-      if (!_this7.uppy.getFile(fileID)) return;
+      if (!_this6.uppy.getFile(fileID)) return;
       cb();
     });
   };
 
   AwsS3Multipart.prototype.onPauseAll = function onPauseAll(fileID, cb) {
-    var _this8 = this;
+    var _this7 = this;
 
     this.uploaderEvents[fileID].on("pause-all", function () {
-      if (!_this8.uppy.getFile(fileID)) return;
+      if (!_this7.uppy.getFile(fileID)) return;
       cb();
     });
   };
 
   AwsS3Multipart.prototype.onResumeAll = function onResumeAll(fileID, cb) {
-    var _this9 = this;
+    var _this8 = this;
 
     this.uploaderEvents[fileID].on("resume-all", function () {
-      if (!_this9.uppy.getFile(fileID)) return;
+      if (!_this8.uppy.getFile(fileID)) return;
       cb();
     });
   };
 
   AwsS3Multipart.prototype.install = function install() {
-    var _this10 = this;
+    var _this9 = this;
 
     var _uppy$getState = this.uppy.getState(),
         capabilities = _uppy$getState.capabilities;
@@ -465,8 +455,8 @@ module.exports = function (_Plugin) {
     this.uppy.addUploader(this.upload);
 
     this.uppy.on("cancel-all", function () {
-      _this10.uppy.getFiles().forEach(function (file) {
-        _this10.resetUploaderReferences(file.id, { abort: true });
+      _this9.uppy.getFiles().forEach(function (file) {
+        _this9.resetUploaderReferences(file.id, { abort: true });
       });
     });
   };
