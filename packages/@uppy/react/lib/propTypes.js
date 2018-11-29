@@ -1,8 +1,8 @@
-var PropTypes = require('prop-types');
-var UppyCore = require('@uppy/core').Uppy;
+var PropTypes = require("prop-types");
+var UppyCore = require("@uppy/core").Uppy;
 
 // The `uppy` prop receives the Uppy core instance.
-var uppy = PropTypes.instanceOf(UppyCore).isRequired;
+var uppy = PropTypes.any; // instanceOf(UppyCore).isRequired
 
 // A list of plugins to mount inside this component.
 var plugins = PropTypes.arrayOf(PropTypes.string);
