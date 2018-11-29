@@ -91,14 +91,13 @@ module.exports = class AwsS3Multipart extends Plugin {
     }
   }
 
-  createMultipartUpload(file, numParts) {
+  createMultipartUpload(file) {
     this.assertHost();
 
     return this.client
-      .post("getSignedMultipart", {
-        fileName: file.name,
-        cType: file.type,
-        numParts: numParts
+      .post("s3/multipart", {
+        filename: file.name,
+        type: file.type
       })
       .then(assertServerError);
   }
@@ -113,32 +112,30 @@ module.exports = class AwsS3Multipart extends Plugin {
   prepareUploadPart(file, { key, uploadId, number }) {
     this.assertHost();
 
-    return new Promise((resolve, reject) => {
-      if (!this.part || !this.parts.length || !this.parts[number - 1]) {
-        reject(new Error("No part at " + index + " found for upload..."));
-      } else {
-        resolve(!this.parts[number - 1]);
-      }
-    });
-
-    // const filename = encodeURIComponent(key)
-    // return this.client.get(`s3/multipart/${uploadId}/${number}?key=${filename}`)
-    //   .then(assertServerError)
+    const filename = encodeURIComponent(key);
+    return this.client
+      .get(`s3/multipart/${uploadId}/${number}?key=${filename}`)
+      .then(assertServerError);
   }
 
-  completeMultipartUpload(file, { url, parts }) {
+  completeMultipartUpload(file, { key, uploadId, parts }) {
     this.assertHost();
-    //const filename = encodeURIComponent(key)
-    //const uploadIdEnc = encodeURIComponent(uploadId)
-    return this.client.post(url, { parts }).then(assertServerError);
+
+    const filename = encodeURIComponent(key);
+    const uploadIdEnc = encodeURIComponent(uploadId);
+    return this.client
+      .post(`s3/multipart/${uploadIdEnc}/complete?key=${filename}`, { parts })
+      .then(assertServerError);
   }
 
-  abortMultipartUpload(file, { url }) {
+  abortMultipartUpload(file, { key, uploadId }) {
     this.assertHost();
 
-    //const filename = encodeURIComponent(key)
-    //const uploadIdEnc = encodeURIComponent(uploadId)
-    return this.client.delete(url).then(assertServerError);
+    const filename = encodeURIComponent(key);
+    const uploadIdEnc = encodeURIComponent(uploadId);
+    return this.client
+      .delete(`s3/multipart/${uploadIdEnc}?key=${filename}`)
+      .then(assertServerError);
   }
 
   uploadFile(file) {
@@ -161,7 +158,6 @@ module.exports = class AwsS3Multipart extends Plugin {
             ),
 
             limit: this.opts.limit || 5,
-            chunkSize: this.opts.chunkSize,
             onStart: data => {
               const cFile = this.uppy.getFile(file.id);
               this.uppy.setFileState(file.id, {

@@ -1,12 +1,12 @@
-const router = require('express').Router
-const ms = require('ms')
+const router = require("express").Router;
+const ms = require("ms");
 
-module.exports = function s3 (config) {
-  if (typeof config.acl !== 'string') {
-    throw new TypeError('s3: The `acl` option must be a string')
+module.exports = function s3(config) {
+  if (typeof config.acl !== "string") {
+    throw new TypeError("s3: The `acl` option must be a string");
   }
-  if (typeof config.getKey !== 'function') {
-    throw new TypeError('s3: The `getKey` option must be a function')
+  if (typeof config.getKey !== "function") {
+    throw new TypeError("s3: The `getKey` option must be a function");
   }
 
   /**
@@ -22,37 +22,43 @@ module.exports = function s3 (config) {
    *  - url - The URL to upload to.
    *  - fields - Form fields to send along.
    */
-  function getUploadParameters (req, res, next) {
+  function getUploadParameters(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const key = config.getKey(req, req.query.filename)
-    if (typeof key !== 'string') {
-      return res.status(500).json({ error: 's3: filename returned from `getKey` must be a string' })
+    const client = req.uppy.s3Client;
+    const key = config.getKey(req, req.query.filename);
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
+    if (typeof key !== "string") {
+      return res
+        .status(500)
+        .json({ error: "s3: filename returned from `getKey` must be a string" });
     }
 
     const fields = {
       acl: config.acl,
       key: key,
-      success_action_status: '201',
-      'content-type': req.query.type
-    }
+      success_action_status: "201",
+      "content-type": req.query.type
+    };
 
-    client.createPresignedPost({
-      Bucket: config.bucket,
-      Expires: ms('5 minutes') / 1000,
-      Fields: fields,
-      Conditions: config.conditions
-    }, (err, data) => {
-      if (err) {
-        next(err)
-        return
+    client.createPresignedPost(
+      {
+        Bucket: bucket,
+        Expires: ms("5 minutes") / 1000,
+        Fields: fields,
+        Conditions: config.conditions
+      },
+      (err, data) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        res.json({
+          method: "post",
+          url: data.url,
+          fields: data.fields
+        });
       }
-      res.json({
-        method: 'post',
-        url: data.url,
-        fields: data.fields
-      })
-    })
+    );
   }
 
   /**
@@ -67,34 +73,42 @@ module.exports = function s3 (config) {
    *  - key - The object key in the S3 bucket.
    *  - uploadId - The ID of this multipart upload, to be used in later requests.
    */
-  function createMultipartUpload (req, res, next) {
+  function createMultipartUpload(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const key = config.getKey(req, req.body.filename)
-    const { type } = req.body
-    if (typeof key !== 'string') {
-      return res.status(500).json({ error: 's3: filename returned from `getKey` must be a string' })
+    const client = req.uppy.s3Client;
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
+    const key = config.getKey(req, req.body.filename);
+    const { type } = req.body;
+    if (typeof key !== "string") {
+      return res
+        .status(500)
+        .json({ error: "s3: filename returned from `getKey` must be a string" });
     }
-    if (typeof type !== 'string') {
-      return res.status(400).json({ error: 's3: content type must be a string' })
+    if (typeof type !== "string") {
+      return res.status(400).json({ error: "s3: content type must be a string" });
     }
 
-    client.createMultipartUpload({
-      Bucket: config.bucket,
-      Key: key,
-      ACL: config.acl,
-      ContentType: type,
-      Expires: ms('5 minutes') / 1000
-    }, (err, data) => {
-      if (err) {
-        next(err)
-        return
+    client.createMultipartUpload(
+      {
+        Bucket: bucket,
+        Key: key,
+        ACL: config.acl,
+        ContentType: type,
+        Expires: ms("5 minutes") / 1000
+      },
+      (err, data) => {
+        console.log("ERRRO", err);
+        console.log("DATTATATTA", data);
+        if (err) {
+          next(err);
+          return;
+        }
+        res.json({
+          key: data.Key,
+          uploadId: data.UploadId
+        });
       }
-      res.json({
-        key: data.Key,
-        uploadId: data.UploadId
-      })
-    })
+    );
   }
 
   /**
@@ -110,44 +124,50 @@ module.exports = function s3 (config) {
    *     - ETag - a hash of this part's contents, used to refer to it.
    *     - Size - size of this part.
    */
-  function getUploadedParts (req, res, next) {
+  function getUploadedParts(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const { uploadId } = req.params
-    const { key } = req.query
+    const client = req.uppy.s3Client;
+    const { uploadId } = req.params;
+    const { key } = req.query;
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
 
-    if (typeof key !== 'string') {
-      return res.status(400).json({ error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"' })
+    if (typeof key !== "string") {
+      return res.status(400).json({
+        error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"'
+      });
     }
 
-    let parts = []
-    listPartsPage(0)
+    let parts = [];
+    listPartsPage(0);
 
-    function listPartsPage (startAt) {
-      client.listParts({
-        Bucket: config.bucket,
-        Key: key,
-        UploadId: uploadId,
-        PartNumberMarker: startAt
-      }, (err, data) => {
-        if (err) {
-          next(err)
-          return
+    function listPartsPage(startAt) {
+      client.listParts(
+        {
+          Bucket: bucket,
+          Key: key,
+          UploadId: uploadId,
+          PartNumberMarker: startAt
+        },
+        (err, data) => {
+          if (err) {
+            next(err);
+            return;
+          }
+
+          parts = parts.concat(data.Parts);
+
+          if (data.IsTruncated) {
+            // Get the next page.
+            listPartsPage(data.NextPartNumberMarker);
+          } else {
+            done();
+          }
         }
-
-        parts = parts.concat(data.Parts)
-
-        if (data.IsTruncated) {
-          // Get the next page.
-          listPartsPage(data.NextPartNumberMarker)
-        } else {
-          done()
-        }
-      })
+      );
     }
 
-    function done () {
-      res.json(parts)
+    function done() {
+      res.json(parts);
     }
   }
 
@@ -162,33 +182,42 @@ module.exports = function s3 (config) {
    * Response JSON:
    *  - url - The URL to upload to, including signed query parameters.
    */
-  function signPartUpload (req, res, next) {
+  function signPartUpload(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const { uploadId, partNumber } = req.params
-    const { key } = req.query
+    const client = req.uppy.s3Client;
+    const { uploadId, partNumber } = req.params;
+    const { key } = req.query;
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
 
-    if (typeof key !== 'string') {
-      return res.status(400).json({ error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"' })
+    if (typeof key !== "string") {
+      return res.status(400).json({
+        error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"'
+      });
     }
     if (!parseInt(partNumber, 10)) {
-      return res.status(400).json({ error: 's3: the part number must be a number between 1 and 10000.' })
+      return res
+        .status(400)
+        .json({ error: "s3: the part number must be a number between 1 and 10000." });
     }
 
-    client.getSignedUrl('uploadPart', {
-      Bucket: config.bucket,
-      Key: key,
-      UploadId: uploadId,
-      PartNumber: partNumber,
-      Body: '',
-      Expires: ms('5 minutes') / 1000
-    }, (err, url) => {
-      if (err) {
-        next(err)
-        return
+    client.getSignedUrl(
+      "uploadPart",
+      {
+        Bucket: bucket,
+        Key: key,
+        UploadId: uploadId,
+        PartNumber: partNumber,
+        Body: "",
+        Expires: ms("5 minutes") / 1000
+      },
+      (err, url) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        res.json({ url });
       }
-      res.json({ url })
-    })
+    );
   }
 
   /**
@@ -201,27 +230,33 @@ module.exports = function s3 (config) {
    * Response JSON:
    *   Empty.
    */
-  function abortMultipartUpload (req, res, next) {
+  function abortMultipartUpload(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const { uploadId } = req.params
-    const { key } = req.query
+    const client = req.uppy.s3Client;
+    const { uploadId } = req.params;
+    const { key } = req.query;
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
 
-    if (typeof key !== 'string') {
-      return res.status(400).json({ error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"' })
+    if (typeof key !== "string") {
+      return res.status(400).json({
+        error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"'
+      });
     }
 
-    client.abortMultipartUpload({
-      Bucket: config.bucket,
-      Key: key,
-      UploadId: uploadId
-    }, (err, data) => {
-      if (err) {
-        next(err)
-        return
+    client.abortMultipartUpload(
+      {
+        Bucket: bucket,
+        Key: key,
+        UploadId: uploadId
+      },
+      (err, data) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        res.json({});
       }
-      res.json({})
-    })
+    );
   }
 
   /**
@@ -236,47 +271,60 @@ module.exports = function s3 (config) {
    * Response JSON:
    *  - location - The full URL to the object in the S3 bucket.
    */
-  function completeMultipartUpload (req, res, next) {
+  function completeMultipartUpload(req, res, next) {
     // @ts-ignore The `uppy` property is added by middleware before reaching here.
-    const client = req.uppy.s3Client
-    const { uploadId } = req.params
-    const { key } = req.query
-    const { parts } = req.body
+    const client = req.uppy.s3Client;
+    const { uploadId } = req.params;
+    const { key } = req.query;
+    const { parts } = req.body;
+    const bucket = req.query.bucket || "mtgame-us.mindtickle.com";
 
-    if (typeof key !== 'string') {
-      return res.status(400).json({ error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"' })
+    if (typeof key !== "string") {
+      return res.status(400).json({
+        error: 's3: the object key must be passed as a query parameter. For example: "?key=abc.jpg"'
+      });
     }
     if (!Array.isArray(parts) || !parts.every(isValidPart)) {
-      return res.status(400).json({ error: 's3: `parts` must be an array of {ETag, PartNumber} objects.' })
+      return res
+        .status(400)
+        .json({ error: "s3: `parts` must be an array of {ETag, PartNumber} objects." });
     }
 
-    client.completeMultipartUpload({
-      Bucket: config.bucket,
-      Key: key,
-      UploadId: uploadId,
-      MultipartUpload: {
-        Parts: parts
+    client.completeMultipartUpload(
+      {
+        Bucket: bucket,
+        Key: key,
+        UploadId: uploadId,
+        MultipartUpload: {
+          Parts: parts
+        }
+      },
+      (err, data) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        res.json({
+          location: data.Location
+        });
       }
-    }, (err, data) => {
-      if (err) {
-        next(err)
-        return
-      }
-      res.json({
-        location: data.Location
-      })
-    })
+    );
   }
 
   return router()
-    .get('/params', getUploadParameters)
-    .post('/multipart', createMultipartUpload)
-    .get('/multipart/:uploadId', getUploadedParts)
-    .get('/multipart/:uploadId/:partNumber', signPartUpload)
-    .post('/multipart/:uploadId/complete', completeMultipartUpload)
-    .delete('/multipart/:uploadId', abortMultipartUpload)
-}
+    .get("/params", getUploadParameters)
+    .post("/multipart", createMultipartUpload)
+    .get("/multipart/:uploadId", getUploadedParts)
+    .get("/multipart/:uploadId/:partNumber", signPartUpload)
+    .post("/multipart/:uploadId/complete", completeMultipartUpload)
+    .delete("/multipart/:uploadId", abortMultipartUpload);
+};
 
-function isValidPart (part) {
-  return part && typeof part === 'object' && typeof part.PartNumber === 'number' && typeof part.ETag === 'string'
+function isValidPart(part) {
+  return (
+    part &&
+    typeof part === "object" &&
+    typeof part.PartNumber === "number" &&
+    typeof part.ETag === "string"
+  );
 }
