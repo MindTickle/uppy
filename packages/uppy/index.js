@@ -1,40 +1,41 @@
 // Core
-exports.Core = require('@uppy/core')
+exports.Core = require("../@uppy/core");
 
 // Utilities
-exports.server = require('@uppy/companion-client')
+exports.server = require("../@uppy/companion-client");
 exports.views = {
-  ProviderView: require('@uppy/provider-views')
-}
+  ProviderView: require("../@uppy/provider-views")
+};
 
 // Stores
-exports.DefaultStore = require('@uppy/store-default')
-exports.ReduxStore = require('@uppy/store-redux')
+exports.DefaultStore = require("../@uppy/store-default");
+exports.ReduxStore = require("../@uppy/store-redux");
 
 // UI plugins
-exports.Dashboard = require('@uppy/dashboard')
-exports.DragDrop = require('@uppy/drag-drop')
-exports.FileInput = require('@uppy/file-input')
-exports.Informer = require('@uppy/informer')
-exports.ProgressBar = require('@uppy/progress-bar')
-exports.StatusBar = require('@uppy/status-bar')
+exports.Dashboard = require("../@uppy/dashboard");
+exports.DragDrop = require("../@uppy/drag-drop");
+exports.FileInput = require("../@uppy/file-input");
+exports.Informer = require("../@uppy/informer");
+exports.ProgressBar = require("../@uppy/progress-bar");
+exports.StatusBar = require("../@uppy/status-bar");
+exports.ReactUppy = require("../@uppy/react");
 
 // Acquirers
-exports.Dropbox = require('@uppy/dropbox')
-exports.GoogleDrive = require('@uppy/google-drive')
-exports.Instagram = require('@uppy/instagram')
-exports.Url = require('@uppy/url')
-exports.Webcam = require('@uppy/webcam')
+exports.Dropbox = require("../@uppy/dropbox");
+exports.GoogleDrive = require("../@uppy/google-drive");
+exports.Instagram = require("../@uppy/instagram");
+exports.Url = require("../@uppy/url");
+exports.Webcam = require("../@uppy/webcam");
 
 // Uploaders
-exports.AwsS3 = require('@uppy/aws-s3')
-exports.AwsS3Multipart = require('@uppy/aws-s3-multipart')
-exports.Transloadit = require('@uppy/transloadit')
-exports.Tus = require('@uppy/tus')
-exports.XHRUpload = require('@uppy/xhr-upload')
+exports.AwsS3 = require("../@uppy/aws-s3");
+exports.AwsS3Multipart = require("../@uppy/aws-s3-multipart");
+exports.Transloadit = require("../@uppy/transloadit");
+exports.Tus = require("../@uppy/tus");
+exports.XHRUpload = require("../@uppy/xhr-upload");
 
 // Miscellaneous
-exports.Form = require('@uppy/form')
-exports.GoldenRetriever = require('@uppy/golden-retriever')
-exports.ReduxDevTools = require('@uppy/redux-dev-tools')
-exports.ThumbnailGenerator = require('@uppy/thumbnail-generator')
+exports.Form = require("../@uppy/form");
+exports.GoldenRetriever = require("../@uppy/golden-retriever");
+exports.ReduxDevTools = require("../@uppy/redux-dev-tools");
+exports.ThumbnailGenerator = require("../@uppy/thumbnail-generator");
