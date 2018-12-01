@@ -30,6 +30,7 @@ class Uploader {
    * @param {UploaderOptions} options
    */
   constructor(options) {
+    this._errRespMessage = null;
     if (!this.validateOptions(options)) {
       logger.debug(this._errRespMessage, "uploader.validator.fail");
       return;
