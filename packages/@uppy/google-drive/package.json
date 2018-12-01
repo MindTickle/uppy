@@ -1,18 +1,13 @@
 {
   "name": "@uppy/google-drive",
-  "description": "The Google Drive plugin for Uppy lets users import files from their Google Drive account",
+  "description":
+    "The Google Drive plugin for Uppy lets users import files from their Google Drive account",
   "version": "0.28.2",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "jsnext:main": "src/index.js",
   "types": "types/index.d.ts",
-  "keywords": [
-    "file uploader",
-    "google drive",
-    "cloud storage",
-    "uppy",
-    "uppy-plugin"
-  ],
+  "keywords": ["file uploader", "google drive", "cloud storage", "uppy", "uppy-plugin"],
   "homepage": "https://uppy.io",
   "bugs": {
     "url": "https://github.com/transloadit/uppy/issues"

@@ -3,18 +3,10 @@
   "description": "Upload to Amazon S3 with Uppy and S3's Multipart upload strategy",
   "version": "0.28.2",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "jsnext:main": "src/index.js",
   "types": "types/index.d.ts",
-  "keywords": [
-    "file uploader",
-    "aws s3",
-    "amazon s3",
-    "s3",
-    "uppy",
-    "uppy-plugin",
-    "multipart"
-  ],
+  "keywords": ["file uploader", "aws s3", "amazon s3", "s3", "uppy", "uppy-plugin", "multipart"],
   "homepage": "https://uppy.io",
   "bugs": {
     "url": "https://github.com/transloadit/uppy/issues"

@@ -3,7 +3,7 @@
   "description": "Droppable zone UI for Uppy. Drag and drop files into it to upload.",
   "version": "0.28.2",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "jsnext:main": "src/index.js",
   "style": "dist/style.min.css",
   "types": "types/index.d.ts",
