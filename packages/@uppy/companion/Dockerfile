@@ -11,8 +11,6 @@ ADD $UPPYBASEPATH/package.json $UPPYBASEPATH/package-*.json $UPPYBASEPATH/yarn.*
 RUN apk --update add  --virtual native-dep \
   make gcc g++ python libgcc libstdc++ && \
   apk del native-dep
-RUN ls /tmp
-RUN cat /tmp/package.json
 RUN cd /tmp && npm install
 RUN mkdir -p /tmp/uppy
 RUN mkdir -p /app && cd /app && ln -nfs /tmp/node_modules
@@ -23,5 +21,4 @@ RUN npm run build
 
 RUN chmod +x /app/docker-entrypoint.sh
 CMD ["/app/docker-entrypoint.sh"]
-# This can be overruled later
 EXPOSE 80
