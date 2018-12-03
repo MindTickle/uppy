@@ -5,6 +5,6 @@ cp /app/env.test.sh /app/env.sh
 . ./env.sh
 env
 
-node /app/lib/standalone/start-server.js
+nodemon
 
 set +x
