@@ -195,7 +195,12 @@ module.exports.socket = server => {
 const interceptGrantErrorResponse = interceptor((req, res) => {
   return {
     isInterceptable: () => {
-      console.log("SESSION=====", req.session);
+      req.session.grant = req.session.grant || {};
+      if (!req.session.grant.state && req.query.state) {
+        req.session.grant.state = req.query.state;
+      }
+
+      console.log("SESSION=====", req.session, "HOST: ", req.host);
       // match grant.js' callback url
       return /^\/connect\/\w+\/callback/.test(req.path);
     },
