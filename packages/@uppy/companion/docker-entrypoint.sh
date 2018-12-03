@@ -5,6 +5,6 @@ cp /app/env.test.sh /app/env.sh
 . ./env.sh
 env
 
-exec node /app/lib/standalone/start-server.js
+node /app/lib/standalone/start-server.js
 
 set +x
