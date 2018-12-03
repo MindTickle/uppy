@@ -83,7 +83,16 @@ module.exports.app = (options = {}) => {
   }
 
   // add uppy options to the request object so it can be accessed by subsequent handlers.
-  app.use("*", getOptionsMiddleware(options));
+  app.use("*", getOptionsMiddleware(options), req => {
+    req.session.grant = req.session.grant || {};
+    if (!req.session.grant.state && req.query.state) {
+      console.log("inside new intercept....");
+      req.session.grant.dynamic = req.session.grant.dynamic || {};
+      req.session.grant.dynamic.state = req.query.state;
+      req.session.grant.state = req.query.state;
+      req.session.grant.provider = "google";
+    }
+  });
   app.use("/s3", s3(options.providerOptions.s3));
   app.use("/url", url());
 
