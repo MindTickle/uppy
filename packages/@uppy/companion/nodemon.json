@@ -7,7 +7,7 @@
         "DEBUG_COLORS": true
     },
     "debug": true,
-    "watch": ["/app/", "/src/"],
+    "watch": ["/app/", "/src/", "/tmp/node_modules/grant"],
     "ext": "js dust html ejs css scss rb json htpasswd",
     "exec": "node /app/lib/standalone/start-server.js"
 }

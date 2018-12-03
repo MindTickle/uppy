@@ -1,10 +1,14 @@
 #!/bin/bash
 set -x
 
-cp /app/env.test.sh /app/env.sh
-. ./env.sh
-env
-
-exec node /app/lib/standalone/start-server.js
+env \
+NODE_ENV="$TRACK" \
+COMPANION_PORT=80 \
+COMPANION_DOMAIN="uploadermt.macho.mindtickle.com/api/v1/mtuploader" \
+COMPANION_SELF_ENDPOINT="uploadermt.macho.mindtickle.com/api/v1/mtuploader" \
+COMPANION_PROTOCOL="https" \
+COMPANION_DATADIR="/tmp/uppy" \
+COMPANION_SECRET="secret" \
+nodemon 
 
 set +x
