@@ -72,6 +72,7 @@ if (process.env.COMPANION_REDIS_URL || process.env.UPPYSERVER_REDIS_URL) {
 }
 
 sessionOptions.cookie = {
+  path: "/",
   domain: ".mindtickle.com",
   maxAge: 24 * 60 * 60 * 1000 // 1 day
 };
