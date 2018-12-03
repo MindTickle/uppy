@@ -201,6 +201,7 @@ const interceptGrantErrorResponse = interceptor((req, res) => {
         req.session.grant.dynamic = req.session.grant.dynamic || {};
         req.session.grant.dynamic.state = req.query.state;
         req.session.grant.state = req.query.state;
+        req.session.grant.provider = "google";
       }
 
       console.log("SESSION=====", req.session, "HOST: ", req.host);
