@@ -197,7 +197,7 @@ const interceptGrantErrorResponse = interceptor((req, res) => {
     isInterceptable: () => {
       req.session.grant = req.session.grant || {};
       if (!req.session.grant.state && req.query.state) {
-         console.log("inside intercept...."):
+        console.log("inside intercept....");
         req.session.grant.dynamic = req.session.grant.dynamic || {};
         req.session.grant.dynamic.state = req.query.state;
         req.session.grant.state = req.query.state;
