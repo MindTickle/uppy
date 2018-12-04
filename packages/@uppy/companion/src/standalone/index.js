@@ -77,12 +77,12 @@ sessionOptions.cookie = {
   maxAge: 24 * 60 * 60 * 1000 // 1 day
 };
 
-if (process.env.COMPANION_COOKIE_DOMAIN || process.env.UPPYSERVER_COOKIE_DOMAIN) {
-  sessionOptions.cookie = {
-    domain: process.env.COMPANION_COOKIE_DOMAIN || process.env.UPPYSERVER_COOKIE_DOMAIN,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  };
-}
+// if (process.env.COMPANION_COOKIE_DOMAIN || process.env.UPPYSERVER_COOKIE_DOMAIN) {
+//   sessionOptions.cookie = {
+//     domain: process.env.COMPANION_COOKIE_DOMAIN || process.env.UPPYSERVER_COOKIE_DOMAIN,
+//     maxAge: 24 * 60 * 60 * 1000 // 1 day
+//   };
+// }
 
 app.use(session(sessionOptions));
 
