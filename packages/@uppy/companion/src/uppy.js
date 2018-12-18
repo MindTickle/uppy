@@ -1,7 +1,7 @@
 const express = require("express");
 // @ts-ignore
 const Grant = require("grant-express");
-const grantConfig = require("./config/grant")();
+const grantConfig = require("./config/grant");
 const providerManager = require("./server/provider");
 const controllers = require("./server/controllers");
 const s3 = require("./server/controllers/s3");
@@ -42,13 +42,14 @@ const defaultOptions = {
  *
  * @param {object} options
  */
+let t = grantConfig();
 module.exports.app = (options = {}) => {
   options = merge({}, defaultOptions, options);
-  providerManager.addProviderOptions(options, grantConfig);
+  providerManager.addProviderOptions(options, t);
 
   const customProviders = options.customProviders;
   if (customProviders) {
-    providerManager.addCustomProviders(customProviders, providers, grantConfig);
+    providerManager.addCustomProviders(customProviders, providers, t);
   }
 
   // create singleton redis client
@@ -61,7 +62,15 @@ module.exports.app = (options = {}) => {
   app.use(cookieParser()); // server tokens are added to cookies
 
   app.use(interceptGrantErrorResponse);
-  app.use(new Grant(grantConfig));
+  // app.use((req, res, next) => {
+  //   const state = req.query.state;
+  //   const config = grantConfig("afroz");
+  //   console.log(config);
+  //   const __grantConfig = new Grant(config);
+  //   __grantConfig(req, res, next);
+  // });
+
+  app.use(new Grant(t));
   app.use((req, res, next) => {
     res.header(
       "Access-Control-Allow-Headers",
