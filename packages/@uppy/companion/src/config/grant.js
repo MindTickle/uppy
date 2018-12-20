@@ -5,7 +5,7 @@ module.exports = () => {
       scope: [
         'https://www.googleapis.com/auth/drive.readonly'
       ],
-      callback: 'https://uploadermt.macho.mindtickle.com/api/v1/mtuploader/drive/callback'
+      callback: '/api/v1/mtuploader/drive/callback'
     },
     dropbox: {
       authorize_url: 'https://www.dropbox.com/oauth2/authorize',
