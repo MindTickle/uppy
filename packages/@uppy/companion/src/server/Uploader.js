@@ -131,6 +131,7 @@ class Uploader {
 
     this.writer.write(chunk, () => {
       if (protocol === "s3-multipart" && !this.s3Upload) {
+        console.log("handle chunk s3 multipart");
         return this.uploadS3Streaming();
       }
       if (!this.options.endpoint) return;
@@ -350,6 +351,7 @@ class Uploader {
    * Upload the file to S3 while it is still being downloaded.
    */
   uploadS3Streaming() {
+    console.log("uploadS3Streaming", this.options.path);
     const file = createTailReadStream(this.options.path, {
       tail: true
     });
@@ -391,11 +393,13 @@ const upload = client.upload({
     this.s3Upload = upload;
 
     upload.on("httpUploadProgress", ({ loaded, total }) => {
+      console.log("httpUploadProgress", loaded, total);
       this.emitProgress(loaded, total);
     });
 
     upload.send((error, data) => {
       this.s3Upload = null;
+      console.log("send", error, data);
       if (error) {
         this.emitError(error);
       } else {
