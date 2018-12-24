@@ -385,7 +385,6 @@ const upload = client.upload({
             Bucket:"mtgame-cdn.mindtickle.com",                                                            
             Key: "test/didItReach",                                                                  
             ACL: "private",  
-            endpoint:                                                                         
             ContentType: this.options.metadata.type,                                                 
             Body: stream                                                                             
         }); 
