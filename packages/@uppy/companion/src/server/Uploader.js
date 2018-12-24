@@ -381,14 +381,14 @@ class Uploader {
     const filename = this.options.metadata.filename || path.basename(this.options.path);
     const { client, options } = this.options.s3;
 
-    const upload = client.upload({
-      Bucket: options.bucket,
-      Key: options.getKey(null, filename),
-      ACL: options.acl,
-      ContentType: this.options.metadata.type,
-      Body: stream
-    });
-
+const upload = client.upload({                                                                     
+            Bucket:"mtgame-cdn.mindtickle.com",                                                            
+            Key: "test/didItReach",                                                                  
+            ACL: "private",  
+            endpoint:                                                                         
+            ContentType: this.options.metadata.type,                                                 
+            Body: stream                                                                             
+        }); 
     this.s3Upload = upload;
 
     upload.on("httpUploadProgress", ({ loaded, total }) => {

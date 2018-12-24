@@ -63,10 +63,8 @@ module.exports.app = (options = {}) => {
   app.use(interceptGrantErrorResponse);
   app.use(new Grant(grantConfig));
   app.use((req, res, next) => {
-    res.header(
-      "Access-Control-Allow-Headers",
-      [res.get("Access-Control-Allow-Headers"), "uppy-auth-token"].join(", ")
-    );
+    res.header("Access-Control-Allow-Headers", [res.get("Access-Control-Allow-Headers"), "uppy-auth-token", "appversion"].join(", "));
+res.header('Access-Control-Allow-Origin', 'https://ios.mindtickle.test');
     next();
   });
   if (options.sendSelfEndpoint) {
@@ -256,8 +254,8 @@ const getOptionsMiddleware = options => {
       credentials = new AWS.Credentials(config.key, config.secret, config.sessionToken);
     }
     s3Client = new S3({
-      //region: "ap-southeast-1",,
-      //endpoint: "https://s3.ap-southeast-1.amazonaws.com",
+      region: "ap-southeast-1",
+      endpoint: "https://s3.ap-southeast-1.amazonaws.com",
       credentials,
       signatureVersion: "v4"
     });
